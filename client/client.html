@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head><title>MindbloxCore</title>
+<style>
+  body { margin: 0; background: #222; color: #0f0; font-family: monospace; display: flex; }
+  #game { border: 1px solid #0f0; }
+  #sidebar { width: 200px; padding: 10px; }
+  button { background: #000; color: #0f0; border: 1px solid #0f0; margin: 2px; }
+</style>
+</head>
+<body>
+<canvas id="game" width="800" height="600"></canvas>
+<div id="sidebar">
+  <h3>Inventory</h3>
+  <div id="inv"></div>
+  <h3>Actions</h3>
+  <button onclick="spawnSoul()">Spawn SoulWater</button>
+  <button onclick="craftGolem()">Craft Golem</button>
+  <div id="log"></div>
+</div>
+
+<script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+<script>
+const socket = io();
+const ctx = game.getContext('2d');
+const entities = new Map();
+let you = null, registry = {};
+const log = msg => document.getElementById('log').innerHTML = msg + '<br>' + document.getElementById('log').innerHTML;
+
+socket.on('init', ({you: youId, registry: r, world}) => {
+  you = youId; registry = r;
+  world.forEach(e => entities.set(e._id, e));
+  log('Joined');
+});
+
+socket.on('entity:spawn', e => { entities.set(e._id, e); draw(); });
+socket.on('entity:despawn', id => { entities.delete(id); draw(); });
+socket.on('entity:move', ({_id, x, y}) => {
+  if(entities.has(_id)) {
+    const e = entities.get(_id); e.x = x; e.y = y;
+  }
+  draw();
+});
+socket.on('inventory:update', inv => {
+  document.getElementById('inv').innerHTML = inv.map(id => `<div>${id}</div>`).join('');
+});
+socket.on('msg', log);
+socket.on('error', e => log('ERR: ' + e));
+
+// Render 60fps
+function draw() {
+  ctx.clearRect(0,0,800,600);
+  for (const e of entities.values()) {
+    ctx.fillStyle = e._id === you? '#0ff' : e._t === 'Item'? 'yellow' : '#0f0';
+    ctx.beginPath();
+    ctx.arc(e.x, e.y, 16, 0, 6.28);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.fillText(e.name.slice(0,8), e.x - 15, e.y - 20);
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+
+// Input WASD
+const keys = {};
+window.onkeydown = e => keys[e.key.toLowerCase()] = true;
+window.onkeyup = e => keys[e.key.toLowerCase()] = false;
+setInterval(() => {
+  let vx = 0, vy = 0;
+  if (keys['w']) vy = -1;
+  if (keys['s']) vy = 1;
+  if (keys['a']) vx = -1;
+  if (keys['d']) vx = 1;
+  if (vx || vy) socket.emit('input', {vx, vy});
+}, 33);
+
+function spawnSoul() {
+  socket.emit('gm:spawn', {type: 'Item', id: 'soul_water', x: 300, y: 300});
+}
+function craftGolem() {
+  socket.emit('gm:craft', {recipeId: 'recipe_golem'});
+}
+</script>
+</body>
+</html>

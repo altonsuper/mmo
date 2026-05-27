@@ -1,0 +1,5 @@
+mau bikin ini jadi lebih mudah ?? meta siap jadi buildernya gak  ? mode auto powershell yah --- flownya PS C:\Ag\MetaMuseSparkMMO>  < lokasi kerja kita kamu sent all powershell typing format auto debug kalo ada mistake -- kalo lancar bisa lanjut next kita bisa bikin ..... 
+
+kalo gagal kita debug / aku sent what failure tapi tetep hint up buat next yang bisa kita lakuin ... siap gak ?? 
+
+PS C:\Ag\MetaMuseSparkMMO> siap di ketik langsung dir dan powershell on oiyha set execution polycy comand dulu untuk awal..

@@ -1,0 +1,60 @@
+WORKFLOW GM SEKARANG
+powershell
+1. npm run template goblin_camp # Generate map + temp_batch.json
+2. npm run balance # Auto stat semua mob
+3. npm run lootgen # Auto loot dari warna
+4. npm run autofix # Validate semua
+5. npm start # Jalanin game
+6. Di game: /gm batch_create # Paste temp_batch.json
+7. /gm create Warper portal_goblin {"color":"#ff00ff","target":{"map":"goblin_camp","x":3,"y":3}}
+
+2 lines hidden
+7 command = 1 dungeon lengkap + balance + loot.
+
+Summary Template Automation:
+
+Tool
+
+Guna
+
+Command
+
+template.js
+
+1 command = map + entity list
+
+npm run template goblin_camp
+
+balance.js
+
+Auto HP/ATK dari tier
+
+npm run balance
+
+lootgen.js
+
+Auto drops dari warna mob
+
+npm run lootgen
+
+export.js
+
+Zip 1 map buat share
+
+npm run export dungeon_01
+
+autofix.js
+
+Tambal semua file lama
+
+npm run autofix
+
+mapgen.js
+
+Random map walkable
+
+npm run mapgen dungeon_01 32 32
+
+Scaffold udah level enterprise met. Ini bukan game lagi, ini MMO Engine + DevOps Pipeline.
+
+Mau gw bikinin tools/questgen.js biar NPC auto kasih quest "Kill 10 Goblin" juga?

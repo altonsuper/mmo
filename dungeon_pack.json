@@ -1,0 +1,10 @@
+[
+  {"id":"goblin_easy","color":"#66ff66","hp":40,"atk":5},
+  {"id":"goblin_normal","color":"#44ff44","hp":80,"atk":12},
+  {"id":"goblin_shaman","color":"#22cc22","hp":120,"atk":20,"tier":"hard"},
+  {"id":"goblin_king","color":"#00ff00","hp":800,"atk":60},
+  {"id":"treasure_chest","color":"#ffff44","loot":"random"},
+  {"id":"dungeon_wall","color":"#696969","solid":true},
+  {"id":"lava_floor","color":"#ff4444","damage":10},
+  {"id":"portal_exit","color":"#ff00ff","target":{"map":"world_01","x":50,"y":50}}
+]

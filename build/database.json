@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "generated": "2026-05-27T03:07:25.504Z",
+    "total": 1
+  },
+  "mobs": [
+    {
+      "id": "slime_01",
+      "name": "Green Slime",
+      "hp": 50,
+      "behavior": "Aggressive"
+    }
+  ],
+  "items": [],
+  "souls": [],
+  "recipes": [],
+  "maps": []
+}

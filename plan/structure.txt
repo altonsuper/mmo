@@ -1,0 +1,20 @@
+C:/MindbloxCore/
+├── /engine/ <-- Core logic, gak diutak-atik designer
+│ ├── world.js <-- Runtime + Spatial Hash
+│ ├── schema.js <-- Validasi Mob, Soul, Recipe
+│ ├── bus.js <-- EventBus
+│ └── storage.js <-- Save/load JSON
+├── /data/ <-- Wilayah designer. Edit sesukanya
+│ ├── /mobs/slime_01.json
+│ ├── /souls/soul_logic.json
+│ ├── /recipes/craft_golem.json
+│ └── index.js <-- Auto-load semua.json
+├── /tools/ <-- Script bantu
+│ ├── gm_cli.js <-- Jalanin di terminal: node gm_cli spawn Mob slime_01 0 0
+│ └── combine.js <-- node combine.js -> hasil build/database.json
+├── /build/ <-- Output siap deploy ke server
+│ └── database.json
+├── /client/ <-- Nanti isi Unity/Godot/Three.js
+│ └── README.md <-- "Taro project client di sini"
+├── server.js <-- node server.js -> langsung jalan headless
+└── package.json <-- npm install, npm start

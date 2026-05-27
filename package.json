@@ -1,0 +1,34 @@
+{
+  "name": "metamusesparkmmo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "build": "node tools/combine.js",
+    "detect": "node tools/detect.js",
+    "scaffold": "node tools/scaffold.js",
+    "antinyasar": "node tools/antinyasar.js",
+    "autofix": "node tools/autofix.js",
+    "mapgen": "node tools/mapgen.js",
+    "template": "node tools/template.js",
+    "balance": "node tools/balance.js",
+    "lootgen": "node tools/lootgen.js",
+    "export": "node tools/export.js",
+    "questgen": "node tools/questgen.js",
+    "designer": "node tools/designer.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "canvas": "^3.2.3",
+    "chokidar": "^5.0.0",
+    "express": "^5.2.1",
+    "matter-js": "^0.20.0",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
+  },
+  "type": "module"
+}

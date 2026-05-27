@@ -1,0 +1,47 @@
+Command
+
+Efek
+
+Nulis DB?
+
+/gm spawn Mob slime_easy 0 0
+
+Spawn slime lemah di 0,0
+
+Tidak
+
+/gm create Mob goblin_normal {"name":"Goblin","tier":"normal","hp":80,"atk":15}
+
+Bikin file data/mobs/goblin_normal.json
+
+Ya
+
+/gm delete Mob goblin_normal
+
+Hapus file JSON goblin
+
+Ya
+
+/gm kill 8a4f2b1c
+
+Bunuh entity ID itu
+
+Tidak
+
+/gm kill all
+
+Bunuh semua mob di map
+
+Tidak
+
+/gm tp 500 300
+
+Teleport kamu ke 500,300
+
+Tidak
+
+/gm tp 8a4f2b1c 100
+
+Teleport mob itu ke 100,100
+
+Tidak

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MindbloxCore</title>
+  <style>
+    body { margin:0; background:#0a0a0a; color:#0f0; font-family:monospace; overflow:hidden; }
+    #game { display:block; margin:0 auto; background:#111; image-rendering:pixelated; }
+    #hud { position:fixed; top:10px; left:10px; right:10px; pointer-events:none; }
+    #hud > div { pointer-events:auto; background:#000a; border:1px solid #0f0; padding:4px; margin:4px; }
+    #chat { position:fixed; bottom:10px; left:10px; width:300px; }
+    #chatlog { height:100px; overflow-y:auto; background:#000a; border:1px solid #0f0; padding:4px; }
+    #chatinput { width:100%; background:#000; color:#0f0; border:1px solid #0f0; }
+   .bar { width:100px; height:10px; background:#300; border:1px solid #0f0; }
+   .barfill { height:100%; background:#0f0; }
+  </style>
+</head>
+<body>
+  <canvas id="game" width="1024" height="768"></canvas>
+  <div id="hud">
+    <div>You: <span id="youId">-</span> | HP: <div class="bar"><div id="hp" class="barfill"></div></div></div>
+    <div>Inventory: <span id="inv">Empty</span> | Souls: <span id="souls">0</span></div>
+    <div>Click = Craft Golem | E = Interact | Tab = Admin</div>
+  </div>
+  <div id="chat">
+    <div id="chatlog"></div>
+    <input id="chatinput" placeholder="Enter to chat /gm spawn Mob slime_01 0 0">
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const cvs = document.getElementById('game');
+    const ctx = cvs.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    let you = null, myEnt = null;
+    const world = new Map();
+    const keys = {};
+    let camX = 0, camY = 0;
+
+    // Asset loading - nanti pake dari /client/assets/
+    const assets = {};
+    function loadImg(path) {
+      if (!assets[path]) {
+        assets[path] = new Image();
+        assets[path].src = '/assets/' + path;
+        assets[path].onerror = () => assets[path] = null; // missing asset
+      }
+      return assets[path];
+    }
+
+    socket.on('init', ({you: youId, world: ents}) => {
+      you = youId;
+      document.getElementById('youId').textContent = you.slice(0,6);
+      ents.forEach(e => world.set(e._id, e));
+    });
+    socket.on('spawn', e => world.set(e._id, e));
+    socket.on('despawn', id => world.delete(id));
+    socket.on('move', ({_id, x, y}) => {
+      if(world.has(_id)) {
+        const e = world.get(_id); e.x = x; e.y = y;
+        if (_id === you) myEnt = e;
+      }
+    });
+    socket.on('msg', msg => {
+      const log = document.getElementById('chatlog');
+      log.innerHTML += msg + '<br>';
+      log.scrollTop = log.scrollHeight;
+    });
+
+    // Render
+    function draw() {
+      ctx.fillStyle = '#050';
+      ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+      // Camera follow player
+      if (myEnt) {
+        camX = myEnt.x - cvs.width/2;
+        camY = myEnt.y - cvs.height/2;
+      }
+
+      // Draw grid
+      ctx.strokeStyle = '#0a0';
+      for(let x = -camX%64; x < cvs.width; x+=64) {
+        ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,cvs.height); ctx.stroke();
+      }
+      for(let y = -camY%64; y < cvs.height; y+=64) {
+        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(cvs.width,y); ctx.stroke();
+      }
+
+      // Draw entities
+      world.forEach(e => {
+        const sx = e.x - camX, sy = e.y - camY;
+        if (sx < -50 || sx > cvs.width+50) return;
+
+        // Coba load sprite, fallback ke kotak
+        const img = e.sprite? loadImg(e.sprite) : null;
+        if (img && img.complete && img.naturalWidth) {
+          ctx.drawImage(img, sx-32, sy-32, 64, 64);
+        } else {
+          let fillColor = '#ff00ff'; // magenta = error
+        if (e.color) fillColor = e.color;
+        else if (e._t === 'Mob') fillColor = '#44ff44';
+        else if (e._t === 'Item') fillColor = '#ffff44';
+        ctx.fillStyle = e._id === you? '#0ff' : fillColor;
+          ctx.fillRect(sx-16, sy-16, 32, 32);
+          if (!e.sprite) ctx.fillStyle = '#f00', ctx.fillText('?', sx-4, sy+4);
+        }
+
+        // Name + HP bar
+        ctx.fillStyle = '#fff';
+        ctx.fillText(e.name, sx-20, sy-24);
+        ctx.fillStyle = '#300'; ctx.fillRect(sx-20, sy-20, 40, 4);
+        ctx.fillStyle = '#0f0'; ctx.fillRect(sx-20, sy-20, 40*(e.hp/100), 4);
+      });
+
+      // Update HUD HP
+      if (myEnt) document.getElementById('hp').style.width = myEnt.hp + '%';
+
+        // Fade overlay
+  if (fadeAlpha > 0) {
+    ctx.fillStyle = `rgba(0,0,0,${fadeAlpha})`;
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = '#0f0';
+    ctx.font = '20px monospace';
+    ctx.fillText(`Loading ${currentMap}...`, cvs.width/2 - 80, cvs.height/2);
+  }
+  
+  requestAnimationFrame(draw);
+    }
+    draw();
+
+    // Input
+    window.onkeydown = e => {
+      keys[e.key.toLowerCase()] = true;
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        window.open('/admin.html', '_blank');
+      }
+      if (e.key === 'Enter') {
+        const input = document.getElementById('chatinput');
+        if (document.activeElement === input && input.value) {
+          if (input.value.startsWith('/gm ')) {
+            const [,...parts] = input.value.split(' ');
+            socket.emit('gm', {cmd: parts[0], args: parts.slice(1)});
+          } else {
+            socket.emit('chat', input.value);
+          }
+          input.value = '';
+          input.blur();
+        } else {
+          input.focus();
+        }
+      }
+    };
+    window.onkeyup = e => keys[e.key.toLowerCase()] = false;
+
+    // Movement
+    setInterval(() => {
+      if (!myEnt) return;
+      let dx = 0, dy = 0;
+      if (keys['w']) dy -= 4; if (keys['s']) dy += 4;
+      if (keys['a']) dx -= 4; if (keys['d']) dx += 4;
+      if (dx|| dy) socket.emit('move', {x: myEnt.x + dx, y: myEnt.y + dy});
+    }, 33);
+
+    // Craft on click
+    cvs.onclick = () => socket.emit('gm', {cmd: 'craft', args: ['craft_golem']});
+  </script>
+</body>
+</html>

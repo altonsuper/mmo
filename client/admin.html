@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MindbloxCore Map Editor</title>
+  <style>
+    body { margin:0; background:#000; color:#0f0; font-family:monospace; display:flex; }
+    #toolbar { width:250px; padding:10px; border-right:1px solid #0f0; }
+    #map { flex:1; position:relative; overflow:scroll; background:#111; }
+    canvas { image-rendering:pixelated; cursor:crosshair; }
+    select, input, button { background:#000; color:#0f0; border:1px solid #0f0; margin:2px; }
+   .tool-active { background:#0f0; color:#000; }
+  </style>
+</head>
+<body>
+  <div id="toolbar">
+    <h3>MAP EDITOR</h3>
+    <div>Map: <input id="mapName" value="world_01"></div>
+    <div>Size: <input id="mapW" type="number" value="64" style="width:50px"> x <input id="mapH" type="number" value="64" style="width:50px"> tiles</div>
+    <button onclick="newMap()">New Map</button>
+    <button onclick="saveMap()">Save Map</button>
+    <hr>
+    <h4>Place Tool</h4>
+    <select id="objType">
+      <option value="Prop">Prop</option>
+      <option value="Mob">Mob</option>
+      <option value="Warper">Warper</option>
+    </select>
+    <select id="objId"></select>
+    <button id="toolPlace" onclick="setTool('place')">Place</button>
+    <button id="toolErase" onclick="setTool('erase')">Erase</button>
+    <hr>
+    <div id="info">Click map to place. Warper needs target map.</div>
+  </div>
+  <div id="map"><canvas id="editor" width="4096" height="4096"></canvas></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const cvs = document.getElementById('editor');
+    const ctx = cvs.getContext('2d');
+    const TILE = 64;
+    let registry = {}, mapData = {tiles:[], objects:[]};
+    let tool = 'place', currentObj = null;
+
+    socket.on('registry', r => {
+      registry = r;
+      const type = document.getElementById('objType').value;
+      updateObjList(type);
+    });
+
+    function updateObjList(type) {
+      const sel = document.getElementById('objId');
+      sel.innerHTML = '';
+      if (!registry[type]) return;
+      Object.keys(registry[type]).forEach(id => {
+        sel.innerHTML += `<option value="${id}">${id}</option>`;
+      });
+    }
+    document.getElementById('objType').onchange = e => updateObjList(e.target.value);
+
+    function setTool(t) {
+      tool = t;
+      document.querySelectorAll('button').forEach(b => b.classList.remove('tool-active'));
+      document.getElementById('tool' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('tool-active');
+    }
+
+    function newMap() {
+      const w = parseInt(document.getElementById('mapW').value);
+      const h = parseInt(document.getElementById('mapH').value);
+      cvs.width = w * TILE;
+      cvs.height = h * TILE;
+      mapData = {name: document.getElementById('mapName').value, width:w, height:h, tiles:[], objects:[]};
+      draw();
+    }
+
+    function draw() {
+      ctx.fillStyle = '#050';
+      ctx.fillRect(0,0,cvs.width,cvs.height);
+      // Grid
+      ctx.strokeStyle = '#0a0';
+      for(let x=0; x<=cvs.width; x+=TILE) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,cvs.height); ctx.stroke(); }
+      for(let y=0; y<=cvs.height; y+=TILE) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(cvs.width,y); ctx.stroke(); }
+      // Objects
+      mapData.objects.forEach(o => {
+        const color = o.type === 'Warper'? '#f0f' : o.type === 'Mob'? '#f00' : '#44f';
+        ctx.fillStyle = color;
+        ctx.fillRect(o.x*TILE+8, o.y*TILE+8, TILE-16, TILE-16);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(o.id.slice(0,6), o.x*TILE+12, o.y*TILE+32);
+      });
+    }
+
+    cvs.onclick = e => {
+      const x = Math.floor(e.offsetX / TILE);
+      const y = Math.floor(e.offsetY / TILE);
+      const type = document.getElementById('objType').value;
+      const id = document.getElementById('objId').value;
+
+      if (tool === 'place') {
+        let obj = {type, id, x, y};
+        if (type === 'Warper') {
+          const target = prompt('Target map + x,y contoh: house_01 10 10');
+          if (!target) return;
+          const [map, tx, ty] = target.split(' ');
+          obj.target = {map, x: parseInt(tx), y: parseInt(ty)};
+        }
+        mapData.objects.push(obj);
+      }
+      if (tool === 'erase') {
+        mapData.objects = mapData.objects.filter(o =>!(o.x===x && o.y===y));
+      }
+      draw();
+    };
+
+    function saveMap() {
+      socket.emit('gm:saveMap', mapData);
+      alert('Map saved to /data/maps/' + mapData.name + '.json');
+    }
+
+    newMap(); setTool('place');
+  </script>
+</body>
+</html>

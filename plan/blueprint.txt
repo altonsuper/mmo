@@ -1,0 +1,375 @@
+Mindblox Core Studio — MMO Sandbox Scaffold Prompt (Enhanced)
+
+Build a complete, modular, and un-truncated single-file HTML5 prototype for a data-driven sandbox engine titled "Mindblox Core Studio."
+
+The system must simulate the foundational architecture of a scalable multiplayer sandbox/MMORPG engine inspired by classic persistent-world structures while remaining fully runnable as a standalone browser prototype.
+
+The architecture must prioritize:
+
+modularity,
+extensibility,
+data-driven systems,
+authoritative state handling patterns,
+and future server migration compatibility.
+
+The prototype must decouple:
+
+game data definitions,
+runtime active-world state,
+local persistence storage,
+and user/permission management layers.
+
+All systems must remain human-readable and structured for future extraction into Node.js backend services, WebSocket networking layers, SQLite/PostgreSQL persistence, or Three.js rendering systems later.
+
+1. Unified Game Schema & Data Registry
+
+Implement a centralized schema registry using flexible JavaScript object structures.
+
+Do NOT hardcode rigid entity logic.
+
+All game entities must support:
+
+custom attributes,
+nested metadata,
+future inheritance expansion,
+dynamic stat injection,
+runtime mutation,
+and serialization compatibility.
+
+Pre-populate the registry with starter templates:
+
+Mob Template
+{
+  id: "slime_01",
+  name: "Green Slime",
+  type: "Hostile",
+  hp: 50,
+  behavior: "Aggressive"
+}
+
+Expansion hints:
+
+AI movement speed
+aggro radius
+elemental resistances
+combat cooldowns
+loot tables
+faction ownership
+tick update intervals
+pathfinding states
+Equipment Template
+{
+  id: "sword_02",
+  name: "Iron Blade",
+  type: "Weapon",
+  statModifier: {
+    attack: 15
+  }
+}
+
+Expansion hints:
+
+durability
+rarity tiers
+enchantment slots
+attack speed
+socket systems
+procedural modifiers
+Consumable Template
+{
+  id: "potion_03",
+  name: "Red Elixir",
+  type: "Healing",
+  restoreAmount: 20
+}
+
+Expansion hints:
+
+temporary buffs
+status curing
+regeneration-over-time
+cooldown locking
+stack limits
+NPC Template
+{
+  id: "villager_04",
+  name: "Blacksmith Joe",
+  type: "Merchant",
+  dialogue: "Need your blade sharpened?"
+}
+
+Expansion hints:
+
+branching dialogue trees
+quest state tracking
+dynamic inventories
+reputation systems
+event triggers
+Material Item Template
+{
+  id: "ore_05",
+  name: "Gold Nugget",
+  type: "Material",
+  value: 50
+}
+
+Expansion hints:
+
+crafting recipes
+rarity quality
+stack merging
+trade economy hooks
+Warper Template
+{
+  id: "portal_06",
+  name: "Town Gate",
+  type: "Teleporter",
+  destination: {
+    x: 0,
+    y: 0,
+    z: 0
+  }
+}
+
+Expansion hints:
+
+region loading
+access restrictions
+level requirements
+visual FX triggers
+instance routing
+2. Runtime World State Layer
+
+Create a separate live-world runtime state manager distinct from static asset definitions.
+
+The runtime world manager must:
+
+track active spawned entities,
+maintain unique instance IDs,
+support coordinate positioning,
+and allow runtime mutation independently from base templates.
+
+Example runtime concepts:
+
+entity spawn coordinates,
+current HP,
+temporary buffs,
+ownership references,
+despawn timers,
+movement states.
+
+Implement lightweight Area-of-Interest simulation patterns:
+
+only render nearby active entities,
+structure the grid system for future chunk partitioning,
+include comments explaining scalability upgrades.
+
+Do NOT tightly couple rendering logic to the data registry.
+
+3. User Identity & GM Privilege Layer
+
+Implement a lightweight session identity manager.
+
+Track:
+
+{
+  username: "PlayerOne",
+  role: "StandardPlayer"
+}
+
+Roles:
+
+StandardPlayer
+GameMaster
+
+The interface must dynamically adapt based on permission level.
+
+When role = GameMaster:
+
+expose administrative controls,
+live spawning tools,
+delete tools,
+world-edit utilities,
+and runtime inspection panels.
+
+Structure the permission layer so it can later support:
+
+moderators,
+developers,
+regional admins,
+or server authority roles.
+4. Command Processing Pipeline
+
+Implement a modular command-processing engine simulating MMO administrative consoles.
+
+The command processor must support:
+
+parsing structured commands,
+validating permissions,
+executing actions,
+logging results,
+and updating live runtime state.
+
+Required actions:
+
+Add Entity
+Delete Entity
+Move Entity
+Inspect Entity
+
+Administrative system hints:
+
+undo/redo buffers
+permission validation
+server authority simulation
+audit logs
+anti-invalid placement rules
+
+The command console should visually resemble:
+
+MMORPG GM terminals,
+developer debugging consoles,
+or live world editors.
+5. Local Persistence & Migration Layer
+
+Implement automatic LocalStorage persistence.
+
+Persist:
+
+active world entities,
+user session state,
+placed assets,
+map edits,
+runtime mutations.
+
+The browser refresh must restore the previous sandbox state.
+
+Architect the persistence layer so it can later migrate cleanly into:
+
+Node.js APIs,
+SQLite,
+PostgreSQL,
+Redis cache systems,
+or WebSocket synchronization.
+
+Add comments showing where future API hooks would connect.
+
+6. Tick System & Simulation Loop
+
+Implement a lightweight simulation loop architecture.
+
+Separate:
+
+render loop,
+entity update loop,
+persistence interval,
+and AI behavior update timing.
+
+Do NOT place all updates into a single uncontrolled loop.
+
+Include scalable comments describing:
+
+server tick systems,
+combat timing,
+movement intervals,
+and performance optimization strategies.
+7. Structural Viewport & Interface
+
+Create a clean dark MMO-dev workspace aesthetic:
+
+background: #111424
+neon emerald highlights
+modular dashboard panels
+readable monospace developer styling
+
+Layout:
+
+Left Panel
+
+GM Matrix Terminal:
+
+command logs
+runtime inspector
+data editor
+role controls
+persistence state monitor
+Right Panel
+
+Interactive world viewport:
+
+grid-based visualization
+clickable entities
+coordinate placement
+runtime labels
+live entity states
+
+All viewport objects must visually expose:
+
+type,
+name,
+current variables,
+and instance identifiers.
+
+Structure rendering logic so the viewport can later be swapped with:
+
+Three.js,
+PixiJS,
+Babylon.js,
+or native engine render pipelines.
+8. MMO Architecture Preparation
+
+Design the internal structure with future multiplayer separation in mind.
+
+Organize code sections clearly into:
+
+schema registry,
+runtime world manager,
+renderer,
+command processor,
+persistence layer,
+tick engine,
+identity manager,
+utility helpers.
+
+Include architectural comments showing future extraction paths into:
+
+login-server
+world-server
+combat-service
+chat-service
+inventory-service
+database-worker
+gateway
+
+Avoid monolithic spaghetti logic.
+
+9. Code Quality Requirements
+
+Requirements:
+
+100% functional JavaScript
+no truncated logic
+no pseudo-code placeholders
+no minification
+no skipped implementations
+no hidden dependencies
+no external frameworks required
+
+Use:
+
+isolated modules,
+descriptive naming,
+expandable functions,
+explicit comments,
+and clean separation of concerns.
+
+When future systems are not implemented:
+
+use structured expansion comments,
+not empty blocks.
+
+The final result should feel like:
+
+an internal MMORPG world editor,
+a sandbox simulation engine,
+and a scalable prototype foundation for persistent online worlds.
